@@ -55,6 +55,21 @@ export async function mealRoutes(server: FastifyInstance){
 
     })
 
+    // List Single Meal
+    server.get("/:id", async (req: FastifyRequest, res: FastifyReply) => {
+
+        const { id } = getMealIdRouteSchema.parse(req.params)
+
+        const { username_id } = getUserIdHeaderSchema.parse(req.headers)
+
+        const response = await db.findMealById(id, username_id)
+
+        return res.status(200).send({
+            data: response
+        })
+
+    })
+
     // Delete Meal
     server.delete("/:id", async (req: FastifyRequest, res: FastifyReply) => {
 

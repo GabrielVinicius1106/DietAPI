@@ -20,7 +20,7 @@ class Database {
     }
 
     // Find User byUsername Statement
-    async findUserByUsername(username: string){
+    async findUserByUsername(username: string): Promise<User>{
         
         const res = await this.pool.query("SELECT * FROM users WHERE username = $1;", [ username ]);
 
@@ -28,7 +28,7 @@ class Database {
     }
 
     // Create User Statement
-    async createUser(user: User){
+    async createUser(user: User): Promise<User>{
         
         if(await this.findUserByUsername(user.username)) throw new Error("Este Usuário já Existe.") 
         
@@ -40,7 +40,7 @@ class Database {
     }
 
     // Create Meal Statement
-    async createMeal(meal: Meal){
+    async createMeal(meal: Meal): Promise<Meal>{
 
         await this.pool.query("INSERT INTO meals (id, username_id, name, description, date, inside_diet) VALUES ($1, $2, $3, $4, $5, $6)", [ meal.id, meal.username_id, meal.name, meal.description, meal.date, meal.inside_diet ])
 
@@ -49,7 +49,7 @@ class Database {
         return res.rows[0]
     }   
 
-    async findMealById(id: string, username_id: string){
+    async findMealById(id: string, username_id: string): Promise<Meal>{
         
         const res = await this.pool.query("SELECT * FROM meals WHERE id = $1 AND username_id = $2;", [ id, username_id ])
 
@@ -57,7 +57,7 @@ class Database {
     }
 
     // List Meals Statement
-    async listMeals(username_id: string){
+    async listMeals(username_id: string): Promise<Meal[]>{
 
         const res = await this.pool.query("SELECT id, name, description, date, inside_diet FROM meals WHERE username_id = $1;", [ username_id ])
 
@@ -65,7 +65,7 @@ class Database {
     }
 
     // Delete Meal Statement
-    async deleteMeal(id: string, username_id: string){
+    async deleteMeal(id: string, username_id: string): Promise<string>{
 
         const meal = await this.findMealById(id, username_id)
 
@@ -77,7 +77,7 @@ class Database {
     }
 
     // Update Meal Statement
-    async updateMeal(id: string, username_id: string, name: string, description: string, inside_diet: boolean){
+    async updateMeal(id: string, username_id: string, name: string, description: string, inside_diet: boolean): Promise<Meal>{
 
         await this.pool.query("UPDATE meals SET name = $1, description = $2, inside_diet = $3 WHERE id = $4 AND username_id = $5;", [ name, description, inside_diet, id, username_id ])
 
