@@ -22,11 +22,7 @@ class Database {
     // Find User byUsername Statement
     async findUserByUsername(username: string){
         
-        this.pool.connect()
-
         const res = await this.pool.query("SELECT * FROM users WHERE username = $1;", [ username ]);
-
-        if(!res.rows[0]) return null
 
         return res.rows[0]
     }
@@ -34,13 +30,11 @@ class Database {
     // Create User Statement
     async createUser(user: User){
         
-        this.pool.connect()
-
         if(await this.findUserByUsername(user.username)) throw new Error("Este Usuário já Existe.") 
         
-        await this.pool.query(`INSERT INTO users (id, username, password) VALUES ($1, $2, $3);`, [ user.id, user.username, user.password ])
+        await this.pool.query("INSERT INTO users (id, username, password) VALUES ($1, $2, $3);", [ user.id, user.username, user.password ])
         
-        const res = await this.pool.query(`SELECT * FROM users WHERE id = $1;`, [ user.id ])
+        const res = await this.pool.query("SELECT * FROM users WHERE id = $1;", [ user.id ])
 
         return res.rows[0]
     }
@@ -48,19 +42,15 @@ class Database {
     // Create Meal Statement
     async createMeal(meal: Meal){
 
-        this.pool.connect()
+        await this.pool.query("INSERT INTO meals (id, username_id, name, description, date, inside_diet) VALUES ($1, $2, $3, $4, $5, $6)", [ meal.id, meal.username_id, meal.name, meal.description, meal.date, meal.inside_diet ])
 
-        await this.pool.query(`INSERT INTO meals (id, username_id, name, description, date, inside_diet) VALUES ($1, $2, $3, $4, $5, $6)`, [ meal.id, meal.username_id, meal.name, meal.description, meal.date, meal.inside_diet ])
-
-        const res = await this.pool.query(`SELECT id, name, description, date, inside_diet FROM meals WHERE id = $1;`, [ meal.id ])
+        const res = await this.pool.query("SELECT id, name, description, date, inside_diet FROM meals WHERE id = $1;", [ meal.id ])
 
         return res.rows[0]
     }   
 
-    async findMealById(id: string, username_id: string): Promise<Meal>{
+    async findMealById(id: string, username_id: string){
         
-        this.pool.connect()
-
         const res = await this.pool.query("SELECT * FROM meals WHERE id = $1 AND username_id = $2;", [ id, username_id ])
 
         return res.rows[0]  
@@ -69,17 +59,13 @@ class Database {
     // List Meals Statement
     async listMeals(username_id: string){
 
-        this.pool.connect()
-
-        const res = await this.pool.query(`SELECT id, name, description, date, inside_diet FROM meals WHERE username_id = $1;`, [ username_id ])
+        const res = await this.pool.query("SELECT id, name, description, date, inside_diet FROM meals WHERE username_id = $1;", [ username_id ])
 
         return res.rows
     }
 
     // Delete Meal Statement
     async deleteMeal(id: string, username_id: string){
-
-        this.pool.connect()
 
         const meal = await this.findMealById(id, username_id)
 
@@ -88,6 +74,16 @@ class Database {
         await this.pool.query("DELETE FROM meals WHERE id = $1 AND username_id = $2;", [ id, username_id ])
         
         return `${meal.name} Successfully Deleted.`
+    }
+
+    // Update Meal Statement
+    async updateMeal(id: string, username_id: string, name: string, description: string, inside_diet: boolean){
+
+        await this.pool.query("UPDATE meals SET name = $1, description = $2, inside_diet = $3 WHERE id = $4 AND username_id = $5;", [ name, description, inside_diet, id, username_id ])
+
+        const res = await this.pool.query("SELECT id, name, description, date, inside_diet FROM meals WHERE id = $1 AND username_id = $2;", [ id, username_id ])
+
+        return res.rows[0]
     }
 
     async close(){

@@ -1,10 +1,11 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { createMealBodySchema } from "../schemas/createMealBodySchema.js";
 import { getUserIdHeaderSchema } from "../schemas/getUserIdHeaderSchema.js";
-import { getUserIdRouteSchema } from "../schemas/getUserIdRouteSchema.js";
+import { getMealIdRouteSchema } from "../schemas/getMealIdRouteSchema.js";
 import { Meal } from "../interfaces/meal.js";
 import { randomUUID } from "node:crypto";
 import { db } from "../database/database.js";
+import { updateMealBodySchema } from "../schemas/updateMealBodySchema.js";
 
 export async function mealRoutes(server: FastifyInstance){
 
@@ -57,12 +58,31 @@ export async function mealRoutes(server: FastifyInstance){
     // Delete Meal
     server.delete("/:id", async (req: FastifyRequest, res: FastifyReply) => {
 
-        const { id } = getUserIdRouteSchema.parse(req.params)
+        const { id } = getMealIdRouteSchema.parse(req.params)
         const { username_id } = getUserIdHeaderSchema.parse(req.headers)
 
         const response = await db.deleteMeal(id, username_id)
 
-        return res.status(200).send({ message: response })
+        return res.status(200).send({ 
+            message: response 
+        })
+
+    })
+
+    // Update Meal
+    server.put("/:id", async (req: FastifyRequest, res: FastifyReply) => {
+        
+        const { id } = getMealIdRouteSchema.parse(req.params)
+
+        const { username_id } = getUserIdHeaderSchema.parse(req.headers)
+
+        const { name, description, inside_diet } = updateMealBodySchema.parse(req.body)
+
+        const response = await db.updateMeal(id, username_id, name, description, inside_diet)
+
+        return res.status(200).send({ 
+            updated_meal: response 
+        })
 
     })
 

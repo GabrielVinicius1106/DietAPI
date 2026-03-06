@@ -62,6 +62,4 @@
             max: 10
         })
 
-- pool.connect() <!-- Stablish Connection with Database -->
-
-- await pool.query(<statement>, <params>) <!-- Execute a Statemente with Params -->
+- await pool.query(<statement>, <params>) <!-- Create Connection, Execute a Statemente with Params and Close Connection -->
