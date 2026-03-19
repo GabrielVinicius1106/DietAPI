@@ -12,7 +12,7 @@ function getBestSequence(meals: Meal[]): number{
     let best: number = 0, actual: number = 0
 
     for(let i = 0; i < (meals.length - 1); i++){
-        if(meals[0]?.inside_diet){
+        if(meals[i]?.inside_diet){
 
             actual++
 
